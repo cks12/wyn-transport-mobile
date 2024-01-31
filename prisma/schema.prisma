@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Roles {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  userIds String[] @db.ObjectId
+  users   User[]   @relation(references: [id], fields: [userIds])
+}
+
+model reversoGroup {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  filialId String    @unique @db.ObjectId
+  tecnicos Peoples[]
+  filial   filial    @relation(fields: [filialId], references: [id])
+}
+
+model reverso {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  codServico    String?
+  peso          Float? @default(0)
+  freteValor    Float?
+  Romaneio      String
+  CorreiosId    String?
+  aprrovedById  String?  @db.ObjectId
+  aproved       Boolean  @default(false)
+  approvedBy    User?    @relation(name: "reverso x users", fields: [aprrovedById], references: [id])
+  filialId      String   @db.ObjectId
+  filial        filial?  @relation(fields: [filialId], references: [id])
+  tecnico       Peoples  @relation(references: [id], fields: [tecnicoId])
+  validatedBy   User?    @relation(fields: [validatedById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tecnicoId     String   @db.ObjectId
+  validatedById String?  @db.ObjectId
+}
+
+model prazosServiceGroup {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  url       String
+  transport Transport[]
+}
+
+model correiosToken {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @db.ObjectId
+  user     User     @relation(references: [id], fields: [userId])
+  expiraEm DateTime
+  emissao  DateTime
+  token    String
+}
+
+model User {
+  id                  String          @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  password            String
+  role                Role            @default(USER)
+  cpf                 String          @unique
+  active              Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  filiaisIds          String[]        @db.ObjectId
+  reversos            reverso[]       @relation(name: "reverso x users")
+  rolesIds            String[]        @db.ObjectId
+  aproveds            reverso[]
+  roles               Roles[]         @relation(fields: [rolesIds], references: [id])
+  filial              filial[]        @relation(name: "states_for_users", fields: [filiaisIds], references: [id])
+  createdOrders       Ordem[]         @relation(name: "createBy")
+  finishedOrders      Ordem[]         @relation(name: "updateBy")
+  correiosToken       correiosToken[]
+  new_ordens_create   new_ordens[]    @relation(name: "userCreate")
+  new_ordens_validate new_ordens[]    @relation(name: "UserVsOrdens")
+}
+
+model state {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  ibge_code String    @unique
+  name      String    @unique
+  uf        String    @unique
+  cities    City[]
+  peoples   Peoples[]
+  createdAt DateTime  @default(now())
+  updateAt  DateTime  @default(now())
+  filial    filial[]  @relation(fields: [filialId], references: [id])
+  filialId  String[]  @db.ObjectId
+}
+
+model qrCode {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  val       String
+  createdAt DateTime? @default(now())
+}
+
+model filial {
+  id                String                 @id @default(auto()) @map("_id") @db.ObjectId
+  states            state[]                @relation(fields: [statesId], references: [id])
+  statesId          String[]               @db.ObjectId
+  name              String
+  usersIds          String[]               @db.ObjectId
+  users             User[]                 @relation(name: "states_for_users", fields: [usersIds], references: [id])
+  stateUf           String                 @unique
+  cep               String
+  logradouro        String
+  technicianGroupId String?                @unique @db.ObjectId
+  technicianGroup   technicianGroup?       @relation(fields: [technicianGroupId], references: [id])
+  transportGroupId  String?                @unique @db.ObjectId
+  transportGroup    transportGroup?        @relation(references: [id], fields: [transportGroupId])
+  bairro            String
+  complemento       String
+  ordens            Ordem[]
+  reversoGroup      reversoGroup?
+  houseNumber       String
+  cityId            String                 @db.ObjectId
+  city              City                   @relation(fields: [cityId], references: [id])
+  reversos          reverso[]
+  integrationId     String[]               @db.ObjectId
+  integration       transportIntegration[] @relation(fields: [integrationId], references: [id])
+  ordensRec         new_ordens[]           @relation(name: "filialRec")
+  ordensExit        new_ordens[]           @relation(name: "filialExt")
+}
+
+model Ordem {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime  @default(now())
+  creatorId         String?   @db.ObjectId
+  destinationCityId String    @db.ObjectId
+  finished          Boolean
+  jsonData          Json?
+  receiverId        String?   @db.ObjectId
+  transportId       String    @db.ObjectId
+  uiid              String    @unique
+  updatedAt         DateTime  @updatedAt
+  filial            filial    @relation(fields: [filialId], references: [id])
+  filialId          String    @db.ObjectId
+  updaterId         String?   @db.ObjectId
+  filialRecieverId  String?   @db.ObjectId
+  createBy          User?     @relation("createBy", fields: [creatorId], references: [id])
+  updateBy          User?     @relation("updateBy", fields: [updaterId], references: [id])
+  destinationCity   City      @relation(fields: [destinationCityId], references: [id])
+  reciver           Peoples?  @relation(name: "Reciver", fields: [receiverId], references: [id])
+  transport         Transport @relation(fields: [transportId], references: [id])
+}
+
+model InputField {
+  id                      String      @id @default(auto()) @map("_id") @db.ObjectId
+  name                    String
+  type                    String      @unique
+  keyboardType            InputType   @default(numeric)
+  required                Boolean
+  icon                    String
+  inputsId                String[]    @db.ObjectId
+  transports              Transport[] @relation("TransportInputFields", fields: [inputsId], references: [id])
+  transportIntegrationIds String[]    @db.ObjectId
+}
+
+model Rules {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  ruleName String
+  rule     String
+}
+
+model FeeType {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  feeName       String         @unique
+  type          String
+  equation      String
+  input         Json?
+  list          Boolean        @default(false)
+  transportFees TransportFee[]
+}
+
+model transportGroup {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String      @unique
+  filial     filial?
+  transports Transport[]
+}
+
+model technicianGroup {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  filialId    String[]  @db.ObjectId
+  filial      filial[]
+  peoplesIds  String[]  @db.ObjectId
+  technicians Peoples[] @relation(name: "tecnicoXfilial", fields: [peoplesIds], references: [id])
+}
+
+model Transport {
+  id                String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name              String                 @unique
+  active            Boolean                @default(false)
+  integration       transportIntegration[]
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  color             String                 @default("red")
+  cnpj              String
+  inputsId          String[]               @db.ObjectId
+  statesIds         String[]               @db.ObjectId
+  groupsTransportId String?                @db.ObjectId
+  cityType          CityType[]
+  ordem             Ordem[]
+  prazo             Boolean?
+  groupTransport    transportGroup?        @relation(references: [id], fields: [groupsTransportId])
+  transportFee      TransportFee[]         @relation(name: "TransportFee")
+  inputs            InputField[]           @relation(name: "TransportInputFields", fields: [inputsId], references: [id])
+  cubicCalc         String?
+  citiesId          String[]               @db.ObjectId
+  prazoServiceId    String?                @db.ObjectId
+  prazoService      prazosServiceGroup?    @relation(fields: [prazoServiceId], references: [id])
+  cities            City[]                 @relation(name: "TransportToCity", fields: [citiesId], references: [id])
+  new_ordens        new_ordens[]
+}
+
+model Peoples {
+  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String?           @unique
+  password           String?
+  name               String
+  cpf                String            @unique
+  stateUf            String
+  cep                String
+  logradouro         String
+  bairro             String
+  complemento        String
+  houseNumber        String
+  cityId             String            @db.ObjectId
+  city               City              @relation(fields: [cityId], references: [id])
+  active             Boolean           @default(true)
+  ordem              Ordem[]           @relation(name: "Reciver")
+  state              state             @relation(fields: [stateUf], references: [uf])
+  reverso            reverso[]
+  reversoGroupId     String?           @db.ObjectId
+  reversoGroup       reversoGroup?     @relation(fields: [reversoGroupId], references: [id])
+  technicianGroupIds String[]          @db.ObjectId
+  technicianGroup    technicianGroup[] @relation(name: "tecnicoXfilial", fields: [technicianGroupIds], references: [id])
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  new_ordens         new_ordens[]
+}
+
+model City {
+  filiais     filial[]
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  stateUf     String
+  ibge_code   String      @unique
+  name        String
+  state       state       @relation(fields: [stateUf], references: [uf])
+  ordem       Ordem[]
+  cityTypeId  String[]    @db.ObjectId
+  peoples     Peoples[]
+  transportId String[]    @db.ObjectId
+  cityType    CityType[]  @relation(name: "cityType", fields: [cityTypeId], references: [id])
+  transports  Transport[] @relation(name: "TransportToCity", fields: [transportId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model CityType {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String         @unique
+  cubicRange   CubicRange[]
+  transportFee TransportFee[]
+  weightRange  WeightRange[]
+  citysId      String[]       @db.ObjectId
+  city         City[]         @relation("cityType", fields: [citysId], references: [id])
+  transportID  String         @db.ObjectId
+  transport    Transport      @relation(fields: [transportID], references: [id])
+}
+
+model TransportFee {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  transportId String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  active       Boolean   @default(false)
+  equation     String
+  feeTypeId    String?   @db.ObjectId
+  feeType      FeeType?  @relation(fields: [feeTypeId], references: [id])
+  transport    Transport @relation(name: "TransportFee", fields: [transportId], references: [id])
+  CityType     CityType? @relation(fields: [cityTypeName], references: [name])
+  cityTypeName String
+
+  @@unique([cityTypeName], name: "cityTypeIdInTransportFee")
+}
+
+model WeightRange {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  min        Float
+  max        Float?
+  excessFee  Float?
+  fee        Float
+  cityTypeId String?   @db.ObjectId
+  cityType   CityType? @relation(fields: [cityTypeId], references: [id])
+}
+
+model CubicRange {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  min        Float
+  max        Float?
+  excessFee  Float?
+  fee        Float
+  cityTypeId String?   @db.ObjectId
+  cityType   CityType? @relation(fields: [cityTypeId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+  GESTOR
+  DEV
+  VIEWER
+}
+
+enum InputType {
+  numeric
+  text
+}
+
+model ssw {
+  id            String                @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  dominio       String?
+  login         String?
+  senha         String?
+  cnpjPagador   String?
+  coleta        Boolean?
+  icms          Boolean?
+  cepOrigem     String?
+  mercadoria    Int?
+  integrationId String?               @unique @db.ObjectId
+  integration   transportIntegration? @relation(fields: [integrationId], references: [id])
+  type          integrationType?
+}
+
+model correiosIntegraion {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  usuario        String?
+  tokenApi       String?
+  cartaoPostagem String?
+  dr             String?
+  contrato       String?
+}
+
+model transportIntegration {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  imageUri     String?
+  name         String
+  correiosCode String?
+  filialId     String[]         @db.ObjectId
+  filial       filial[]         @relation(references: [id], fields: [filialId])
+  ssw          ssw?
+  tranposrtId  String?          @db.ObjectId
+  transport    Transport?       @relation(fields: [tranposrtId], references: [id])
+  type         integrationType?
+}
+
+enum integrationType {
+  CORREIOS
+  SSW
+  AGUIA_BRANCA
+}
+
+model new_ordens {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  numRo       String
+  numNf       String
+  Peso        Float?
+  Preco       Float?
+  Alt         Float?
+  Lar         Float?
+  Com         Float?
+  valNf       Float?     @default(0)
+  createdAt   DateTime?  @default(now())
+  updatedAt   DateTime?  @updatedAt
+  transportId String?    @db.ObjectId
+  validate    Boolean    @default(false)
+  techId      String?    @db.ObjectId
+  filialExtId String?    @db.ObjectId
+  validatorId String?    @db.ObjectId
+  userId      String?    @db.ObjectId
+  validator   User?      @relation(name: "UserVsOrdens", fields: [validatorId], references: [id])
+  status      status     @default(finalizado)
+  filialRecId String?    @db.ObjectId
+  filialRec   filial?    @relation(name: "filialRec", fields: [filialRecId], references: [id])
+  filialExt   filial?    @relation(name: "filialExt", fields: [filialExtId], references: [id])
+  transport   Transport? @relation(fields: [transportId], references: [id])
+  createdBy   User?      @relation(name: "userCreate", fields: [userId], references: [id])
+  tech        Peoples?   @relation(fields: [techId], references: [id])
+}
+
+model tracking {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+enum status {
+  delete
+  finalizado
+  create
+}
+
+model apiKey {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  apiKey String @unique
+}

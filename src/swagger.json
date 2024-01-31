@@ -1,0 +1,639 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de visualização do wyn-transporte",
+        "contact": {
+            "email": "caio.souza@wyntech.inf.br",
+            "name": "Caio Fresneda"
+        },
+        "description": "Api feita pelo o mais lindo da wyntech",
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "https://int-wp-transport.azurewebsites.net/",
+            "description": "Api do wyn-transporte"
+        }
+    ],
+    "paths": {
+
+        "/v1/filiais": {
+            "get": {
+                "summary": "Listagem total de filais",
+                "description": "Api para conseguir as informações das filiais",
+                "tags": [
+                    "Filiais"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listagem de filiais",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/filiais"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/filiais/{id}": {
+            "get": {
+                "summary": "Get de filiais pelo ID",
+                "description": "Api para conseguir as informações das filiais",
+                "tags": [
+                    "Filiais"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID do consagrado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/filiais"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/v1/users": {
+            "get": {
+                "summary": "Get de usuario pelo ID",
+                "description": "Api para conseguir as informações dos usuarios",
+                "tags": [
+                    "Usuarios"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listagem de usuarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/v1/users/{id}": {
+            "get": {
+                "summary": "Get de usuario pelo ID",
+                "description": "Api para conseguir as informações dos usuarios",
+                "tags": [
+                    "Usuarios"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID do consagrado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/v1/user/list/ByCreate": {
+            "post": {
+                "summary": "Listagem de usuario por data de criação",
+                "description": "Rota responsavel por devolver a listagem de usuarios por um determinado periodo de criação",
+                "tags": [
+                    "Usuarios"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/user/list/ByUpdate": {
+            "post": {
+                "summary": "Listagem de usuario por data de update",
+                "description": "Rota responsavel por devolver a listagem de usuarios por um determinado periodo de update",
+                "tags": [
+                    "Usuarios"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/ordem/list/ByCreate": {
+            "post": {
+                "summary": "Listagem de ordem por data de criação",
+                "description": "Rota responsavel por devolver a listagem de ordems por um determinado periodo de criação",
+                "tags": [
+                    "Ordens"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ordem"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/ordem/list/byUpdate": {
+            "post": {
+                "summary": "Listagem de ordem por data de update",
+                "description": "Rota responsavel por devolver a listagem de ordems por um determinado periodo de atualização",
+                "tags": [
+                    "Ordens"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ordem"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/tech/list/getAll": {
+            "get": {
+                "summary": "Listagem de todos os tecnicos",
+                "description": "Rota responsavel por devolver a listagem de tecnicos",
+                "tags": [
+                    "Tecnicos"
+                ],
+                "requestBody": {
+                    "content": {
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/tech"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/tech/list/byUpdate": {
+            "post": {
+                "summary": "Listagem de tecnico por data de update",
+                "description": "Rota responsavel por devolver a listagem de tecnicos por um determinado periodo de atualização",
+                "tags": [
+                    "Tecnicos"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/tech"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        },
+        "/v1/tech/list/byCreate": {
+            "post": {
+                "summary": "Listagem de tecnico por data de criação",
+                "description": "Rota responsavel por devolver a listagem de tecnicos por um determinado periodo de criação",
+                "tags": [
+                    "Tecnicos"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdAt"
+                            },
+                            "example": {
+                                "init": "2023-09-12T00:00:00.000Z",
+                                "fin": "2023-09-12T00:00:00.000Z"
+                            }
+                        },
+                        "headers": {
+                            "schema": {
+                                "$ref": "#/components/schemas/token"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tudo okay meu bom!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/tech"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Opa meu nobre, teu token é invalido"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The user ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the user"
+                    },
+                    "cpf": {
+                        "type": "string",
+                        "description": "The CPF (Cadastro de Pessoas Físicas) of the user"
+                    },
+                    "filiaisIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "An array of IDs of the user's branches"
+                    }
+                }
+            },
+            "createdAt": {
+                "type": "object",
+                "properties": {
+                    "init": {
+                        "title": "Data inicial",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "fin": {
+                        "title": "Data final",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "init",
+                    "fin"
+                ]
+            },
+            "ordem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "creatorName": {
+                        "type": "string"
+                    },
+                    "creatorId": {
+                        "type": "string"
+                    },
+                    "validatorId": {
+                        "type": "string"
+                    },
+                    "validatorName": {
+                        "type": "string"
+                    },
+                    "priceOfFrete": {
+                        "type": "string"
+                    },
+                    "peso": {
+                        "type": "string"
+                    },
+                    "volume": {
+                        "type": "string"
+                    },
+                    "destinationName": {
+                        "type": "string"
+                    },
+                    "destinationId": {
+                        "type": "string"
+                    },
+                    "destinationType": {
+                        "type": "string",
+                        "enum": [
+                            "tech",
+                            "filial"
+                        ]
+                    },
+                    "transportId": {
+                        "type": "string"
+                    },
+                    "transportName": {
+                        "type": "string"
+                    },
+                    "romaneio": {
+                        "type": "string"
+                    },
+                    "nf": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "created",
+                            "validated",
+                            "canceled",
+                            "finished"
+                        ]
+                    },
+                    "filialExtId": {
+                        "type": "string"
+                    },
+                    "filialExtName": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updateAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "token": {
+                "type": "object",
+                "properties": {
+                    "x-api-key": {
+                        "type": "string"
+                    }
+                }
+            },
+            "tech": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "cpf": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "object",
+                        "properties": {
+                            "road": {
+                                "type": "string"
+                            },
+                            "cep": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "stateUf": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "string"
+                            },
+                            "district": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "filiais": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "cpf": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "object",
+                        "properties": {
+                            "road": {
+                                "type": "string"
+                            },
+                            "cep": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "stateUf": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "string"
+                            },
+                            "district": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
