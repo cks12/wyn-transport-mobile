@@ -1,0 +1,642 @@
+openapi: 3.0.1
+info:
+  title: Faturas
+  description: API responsável por disponibilizar para os clientes externos com contrato, faturas, prévias e boletos.
+  version: 3.2.5
+  x-nuApi: 587
+  x-serviceId: faturas
+  x-ambiente: PRODUCAO
+servers:
+  - url: https://api.correios.com.br/faturas
+    description: Generated server url
+tags:
+  - name: Prévias
+    description: Consulta das prévias de fatura. Prévias de fatura somente contém registros à faturar
+  - name: Faturas
+    description: Consulta de faturas para os clientes externos
+  - name: Status dos processamentos
+    description: Consulta e busca dos resultados dos processamentos dos extratos
+paths:
+  /v1/previas:
+    post:
+      tags:
+        - Prévias
+      summary: Solicitar o processamento e geração da prévia do extrato sintético. O arquivo deverá ser consultado nos Status dos processamentos.
+      operationId: solicitarExtratoAnalitico
+      parameters:
+        - name: tipoPrevia
+          in: query
+          description: Tipo da prévia. SINTETICO ou ANALITICO
+          required: true
+          schema:
+            type: string
+            enum:
+              - SINTETICO
+              - ANALITICO
+        - name: contrato
+          in: query
+          description: Número da contrato
+          required: true
+          schema:
+            type: string
+        - name: dr
+          in: query
+          description: 'DR do contrato. Exemplo: 72'
+          required: true
+          schema:
+            type: string
+        - name: centroCusto
+          in: query
+          description: Codigo do centro de custo
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Retorna a solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessoAssincrono'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas/{fatura}/analitico:
+    post:
+      tags:
+        - Faturas
+      summary: Solicitar o processamento e geração do extrato analítico em CSV. O arquivo deverá ser consultado nos Status dos processamentos.
+      operationId: solicitarExtratoAnalitico_1
+      parameters:
+        - name: fatura
+          in: path
+          description: Número da fatura
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: tipoDocumento
+          in: query
+          description: 'Tipo do documento. Exemplo: RE (equivale ao R&)'
+          required: true
+          schema:
+            type: string
+        - name: drFatura
+          in: query
+          description: 'DR da fatura. Exemplo: 00010'
+          required: true
+          schema:
+            type: string
+        - name: itemFatura
+          in: query
+          description: 'Item da fatura. Exemplo: 001'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna a solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessoAssincrono'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas/{fatura}/analitico/pdf:
+    post:
+      tags:
+        - Faturas
+      summary: Solicita o processamento e geração do extrato analítico em PDF. O arquivo deverá ser consultado nos Status dos processamentos.
+      operationId: solicitarExtratoAnaliticoFaturaPdf
+      parameters:
+        - name: fatura
+          in: path
+          description: Número da fatura
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: tipoDocumento
+          in: query
+          description: 'Tipo do documento. Exemplo: RE (equivale ao R&)'
+          required: true
+          schema:
+            type: string
+        - name: drFatura
+          in: query
+          description: 'DR da fatura. Exemplo: 00010'
+          required: true
+          schema:
+            type: string
+        - name: itemFatura
+          in: query
+          description: 'Item da fatura. Exemplo: 001'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna o extrato analitico da fatura em PDF
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessoAssincrono'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/processamentos/{idProcessamento}:
+    get:
+      tags:
+        - Status dos processamentos
+      summary: Consulta a status do processamento
+      operationId: consultaStatusProcessamento
+      parameters:
+        - name: idProcessamento
+          in: path
+          description: Id da solicitação
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna o status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessoAssincrono'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/processamentos/{idProcessamento}/file:
+    get:
+      tags:
+        - Status dos processamentos
+      summary: Download do arquivo processado. Arquivo permanecerá disponível por 7 dias.
+      operationId: consultaResultadoProcessamento
+      parameters:
+        - name: idProcessamento
+          in: path
+          description: Id da solicitação
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna o status
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas:
+    get:
+      tags:
+        - Faturas
+      summary: Consulta a fatura pelo contrato e período.
+      operationId: consultaFaturas
+      parameters:
+        - name: contrato
+          in: query
+          description: Número do contrato
+          required: true
+          schema:
+            type: string
+        - name: dr
+          in: query
+          description: 'DR do contrato. Exemplo: 10'
+          required: true
+          schema:
+            type: string
+        - name: dataInicial
+          in: query
+          description: Data inicial do período da consulta no formato DD-MM-YYYY
+          required: true
+          schema:
+            type: string
+        - name: dataFinal
+          in: query
+          description: Data final do período da consulta no formato DD-MM-YYYY
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna as faturas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fatura'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas/{fatura}/sintetico/pdf:
+    get:
+      tags:
+        - Faturas
+      summary: Consulta o extrato sintetico em PDF de uma fatura pelo nr da fatura, dr da fatura (com 000 a esquerda), tipo de documento, item da fatura e lote mais recente.
+      operationId: consultaExtratoSinteticoFaturaPdf
+      parameters:
+        - name: fatura
+          in: path
+          description: Número da fatura
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: tipoDocumento
+          in: query
+          description: 'Tipo do documento. Exemplo: RE (equivale ao R&)'
+          required: true
+          schema:
+            type: string
+        - name: drFatura
+          in: query
+          description: 'DR da fatura. Exemplo: 00010'
+          required: true
+          schema:
+            type: string
+        - name: itemFatura
+          in: query
+          description: 'Item da fatura. Exemplo: 001'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna o extrato sintetico da fatura em PDF
+          content:
+            application/pdf:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: byte
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas/{fatura}/boleto/pdf:
+    get:
+      tags:
+        - Faturas
+      summary: Consulta o boleto em pdf de uma fatura pelo nr da fatura, dr da fatura (com 000 a esquerda), tipo de documento, item da fatura e lote mais recente.
+      operationId: consultaBoletoFaturaPdf
+      parameters:
+        - name: fatura
+          in: path
+          description: Número da fatura
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: tipoDocumento
+          in: query
+          description: 'Tipo do documento. Exemplo: RE (equivale ao R&)'
+          required: true
+          schema:
+            type: string
+        - name: drFatura
+          in: query
+          description: 'DR da fatura. Exemplo: 00010'
+          required: true
+          schema:
+            type: string
+        - name: itemFatura
+          in: query
+          description: 'Item da fatura. Exemplo: 001'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna o boleto da fatura
+          content:
+            application/pdf:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: byte
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/faturas/divergencias:
+    get:
+      tags:
+        - Faturas
+      summary: Consulta que permite ao cliente verificar as divergências tarifárias do seu faturamento em aberto.
+      operationId: consultaDivergencias
+      parameters:
+        - name: contrato
+          in: query
+          description: Número do contrato
+          required: true
+          schema:
+            type: string
+        - name: dr
+          in: query
+          description: 'DR do contrato. Exemplo: 74'
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: dataInicial
+          in: query
+          description: Data inicial no formato DD-MM-YYYY. Não pode ser anterior a 6 meses da data atual.
+          required: true
+          schema:
+            type: string
+        - name: dataFinal
+          in: query
+          description: Data final no formato DD-MM-YY. Não pode ser superior a 3 meses do inicial.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retorna as divergências da fatura
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Divergencia'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+components:
+  schemas:
+    ProcessoAssincrono:
+      type: object
+      properties:
+        id:
+          type: string
+        tipoProcessamento:
+          type: string
+          enum:
+            - EXTRATO_ANALITICO
+            - PREVIA_SINTETICO
+            - PREVIA_ANALITICO
+            - EXTRATO_ANALITICO_PDF
+        status:
+          type: string
+          enum:
+            - SOLICITADO
+            - EM_EXECUCAO
+            - ERRO
+            - SUCESSO
+            - EXCLUIDO
+        dataSolicitacao:
+          type: string
+          format: date-time
+        dataInicioProcessamento:
+          type: string
+          format: date-time
+        dataFimProcessamento:
+          type: string
+          format: date-time
+        nomeArquivo:
+          type: string
+        tiporquivo:
+          type: string
+        parametros:
+          type: object
+          additionalProperties:
+            type: string
+        erro:
+          type: string
+    Fatura:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        contrato:
+          type: string
+        nomeContrato:
+          type: string
+        centroCusto:
+          type: integer
+          format: int64
+        nomeCentroCusto:
+          type: string
+        razaoSocial:
+          type: string
+        cnpjCentroCusto:
+          type: string
+        status:
+          type: string
+        vencimento:
+          type: string
+          format: date
+        valor:
+          type: number
+          format: double
+        itemFatura:
+          type: string
+        drFatura:
+          type: string
+        valorEmAberto:
+          type: string
+        tipoDocumento:
+          type: string
+        dataCancelamento:
+          type: string
+          format: date
+        drContrato:
+          type: string
+        dataFechamento:
+          type: string
+          format: date
+        sedexLogico:
+          type: string
+        dataPagamento:
+          type: string
+          format: date
+        fatura:
+          type: string
+        dr:
+          type: string
+        nmCentroCustos:
+          type: string
+        codigoCliente:
+          type: integer
+          format: int64
+        tipoPagamento:
+          type: string
+        an8Cliente:
+          type: integer
+          format: int64
+        lote:
+          type: string
+    Divergencia:
+      type: object
+      properties:
+        tipoPendencia:
+          type: string
+          description: Tipo de Pendência = DPC (divergência peso CEP) e CRE (crédito sujeito a restituição)
+        codigoObjeto:
+          type: string
+        dataPostagem:
+          type: string
+          format: date-time
+        dataPendencia:
+          type: string
+          format: date-time
+        codigoServico:
+          type: string
+        cepContabilizado:
+          type: string
+        cepEntrega:
+          type: string
+        pesoTarifadoFinanceiro:
+          type: string
+        comprimentoFinanceiro:
+          type: string
+        larguraFinanceiro:
+          type: string
+        alturaFinanceiro:
+          type: string
+        pesoCubicoFinanceiro:
+          type: string
+        pesoRealMectri:
+          type: string
+          description: Peso real aferido
+        comprimentoMectri:
+          type: string
+          description: Comprimento aferido
+        larguraMectri:
+          type: string
+          description: Largura aferida
+        alturaMectri:
+          type: string
+          description: Altura aferida
+        pesoCubicoMectri:
+          type: string
+          description: Peso cúbico aferido
+        pesoTarifadoMectri:
+          type: string
+          description: Peso tarifado aferido
+        valorTarifadoFinanceiro:
+          type: number
+          format: double
+        valorTarifadoSgpb:
+          type: number
+          description: Valor tarifado na aferição
+          format: double
+        diferencaValorFinanceiroSgpb:
+          type: number
+          description: Diferença entre o valor financeiro e o valor do SGPB
+          format: double
+    MessageResponse:
+      type: object
+      properties:
+        msgs:
+          type: array
+          description: Mensagens
+          items:
+            type: string
+            description: Mensagens
+        date:
+          type: string
+          description: Data e hora de ocorrência do evento.
+          format: date-time
+        method:
+          type: string
+          description: Método HTTP que foi requisitado.
+        path:
+          type: string
+          description: URL que foi requisitada.
+        causa:
+          type: string
+          description: A causa da mensagem.
+        stackTrace:
+          type: string
+          description: Detalhe da mensagem.

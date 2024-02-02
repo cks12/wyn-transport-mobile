@@ -2,6 +2,7 @@ import { Prisma } from "prisma/prisma-client";
 import db from "..";
 import { ReversoResponseById, UserResponse } from "./responses";
 import { IreversoResponseInApp, get_by_filial_id } from "./type";
+import Correios from "../../lib/correios";
 
 class reversosDB {
     async get_not_validates(query: get_by_filial_id):Promise<IreversoResponseInApp> {
@@ -36,7 +37,7 @@ class reversosDB {
         return res;
     }
 
-    async get_by_id(id: string): Promise<any> {
+    async get_by_id(id: string) {
         const reverso = await db.reverso.findFirst({
             where: {
                 id: id,
@@ -44,6 +45,44 @@ class reversosDB {
             select: ReversoResponseById,
         });
         return reverso; 
+    }
+
+    async update_by_id(id: string, peso: string, userId: string): Promise<any> {
+        const correios = new Correios();
+        await correios.create_token(userId);
+        const recverso = await this.get_by_id(id);
+        console.log(recverso)
+        const filial = await db.filial.findUnique({
+            where: {
+                id: recverso?.filial?.id,
+            }})
+
+        const price = await correios.preco?.PRECO_REQUEST(recverso?.codServico || "",{
+            cepDestino: filial?.cep || "",
+            // @ts-ignore
+            cepOrigem: recverso?.tecnico.cep,
+            psObjeto: peso
+        })
+        const reverso = await db.reverso.update({
+            where: {
+                id: id,
+            },
+            data: {
+                approvedBy: {
+                    connect: {
+                        id: userId
+                    }
+                },
+                freteValor: Number(price?.data.pcFinal.replace(",",".")) || 1,
+                peso:Number(peso.replace(",",".")),
+                aproved: true,
+            },
+            select: {
+                id: true,
+            }
+        });
+        console.log(reverso)
+        return reverso;
     }
 }
 

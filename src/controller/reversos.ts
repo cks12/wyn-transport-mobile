@@ -26,6 +26,19 @@ class ReversosController {
             return res.status(500).json({message: "Erro interno do servidor"}) 
         }
     }
+
+    async update_by_id(req: Request, res: Response) {
+        try {
+            const id = req.params.id
+            console.log(req.body)
+            const reverso = await _reversosDB.update_by_id(id,req.body.peso,req.body.userId);
+            return res.json({reverso})
+        }
+        catch(err){
+            console.log(err)
+            return res.status(500).json({message: "Erro interno do servidor"})
+        }
+    }
 }
 
 export default ReversosController;

@@ -22,6 +22,7 @@ export const ReversoResponseById: Prisma.reversoSelect = {
     filial: {
         select: {
             name: true,
+            id: true,
         }
     },
     Romaneio: true,
@@ -29,6 +30,7 @@ export const ReversoResponseById: Prisma.reversoSelect = {
         select: {
             name: true,
             id: true,
+            cep: true,
             city: {
                 select: {
                     name: true,
@@ -37,6 +39,7 @@ export const ReversoResponseById: Prisma.reversoSelect = {
             }
         },
     },
+    peso: true,
     createdAt: true,
     codServico: true,
 }

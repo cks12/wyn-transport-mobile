@@ -52,7 +52,7 @@ model prazosServiceGroup {
 model correiosToken {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   userId   String   @db.ObjectId
-  user     User     @relation(references: [id], fields: [userId])
+  user     User?     @relation(references: [id], fields: [userId])
   expiraEm DateTime
   emissao  DateTime
   token    String

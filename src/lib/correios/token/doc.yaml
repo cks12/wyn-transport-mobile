@@ -1,0 +1,269 @@
+openapi: 3.0.1
+info:
+  title: Token
+  description: |-
+    Serviço de geração de token, para acesso a diversas APIs dos Correios.
+    <br></br>
+    <b>Geração do token</b>
+    <ul>
+        <li>Para solicitar um token é necessário fazer uma requisição com <b>'Authorization: Basic'</b>, passando o usuário (Meu Correios) e senha (código de acesso).</li>
+    </ul>
+    <b>Expiração do token</b>
+    <ul>
+        <li>O token obtido tem uma data de expiração no atributo <b>'expiraEm'</b>, com isso o mesmo token pode ser utilizado até a data de expiração.</li>
+        <li>Recomendamos que solicite um novo token próximo da data de expiração, alguns minutos antes do token expirar.</li>
+        <li>Será devolvido um <b>NOVO</b> token quando:</li>
+        <ul>
+            <li>O token estiver expirado;</li>
+            <li>Caso haja alguma alteração nas permissões de acesso;</li>
+            <li>Dentro da tolerância de até <b>30 minutos</b> antes da data de expiração.</li>
+            <li>Nos demais casos, será devolvido um token já solicitado.</li>
+        </ul>
+    </ul>
+    <b>Limite de solicitações</b>
+    <ul>
+        <li>A API 'token' tem um limite de  <b>3</b> solitações por segundo.</li>
+        <li>Caso ultrapasse esse limite é disparado status HTTP 429 - Too Many Requests.</li>
+        <li>Para evitar receber o status HTTP 429, sempre verifique a data de expiração do token antes de enviar uma nova solicitação.</li>
+    </ul>
+  version: 1.11.29
+  x-nuApi: 5
+  x-serviceId: token
+  x-ambiente: PRODUCAO
+servers:
+  - url: https://api.correios.com.br/token
+    description: Generated server url
+tags:
+  - name: Token
+    description: Geração de tokens para acesso de APIs.
+paths:
+  /v1/autentica:
+    post:
+      tags:
+        - Token
+      summary: Gera um token para acesso a APIs
+      operationId: token
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/autentica/contrato:
+    post:
+      tags:
+        - Token
+      summary: Gera um token para acesso de APIS, cuja autorização seja pelo número de contrato
+      operationId: tokenPorContrato
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContratoRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /v1/autentica/cartaopostagem:
+    post:
+      tags:
+        - Token
+      summary: Gera um token para acesso a APIs, cuja autorização seja por cartão de postagem
+      operationId: tokenPorCartao
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartaoPostagemRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Caso ocorra alguma validação necessária por parte do requisitante.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Caso ocorra algum erro no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+components:
+  schemas:
+    CartaoPostagem:
+      type: object
+      properties:
+        numero:
+          type: string
+          description: Número do Cartão de Postagem
+        contrato:
+          type: string
+          description: Número do contrato
+        dr:
+          type: integer
+          description: DR/SE do contrato
+          format: int64
+        api:
+          type: array
+          description: Lista de APIs restritas com autorização de acesso
+          items:
+            type: integer
+            description: Lista de APIs restritas com autorização de acesso
+            format: int32
+    Contrato:
+      type: object
+      properties:
+        numero:
+          type: string
+          description: Número do contrato
+        dr:
+          type: integer
+          description: DR/SE do contrato
+          format: int64
+        api:
+          type: array
+          description: Lista de APIs restritas com autorização de acesso
+          items:
+            type: integer
+            description: Lista de APIs restritas com autorização de acesso
+            format: int32
+    Token:
+      type: object
+      properties:
+        ambiente:
+          type: string
+          description: Ambiente
+          enum:
+            - PRODUCAO
+            - HOMOLOGACAO
+            - DESENVOLVIMENTO
+            - LOCAL
+        id:
+          type: string
+          description: Identificador do usuário
+        ip:
+          type: string
+          description: IP do requisitante
+        perfil:
+          type: string
+          description: 'Perfil: PF: Pessoa Física, PJ: Pessoa Jurídica'
+          enum:
+            - S
+            - A
+            - PJ
+            - PF
+        cnpj:
+          type: string
+          description: CNPJ do usuário
+        pjInternacional:
+          type: integer
+          description: Código internacional do usuário
+          format: int64
+        cpf:
+          type: string
+          description: CPF do usuário
+        cie:
+          type: string
+          description: CIE do usuário
+        cartaoPostagem:
+          $ref: '#/components/schemas/CartaoPostagem'
+        contrato:
+          $ref: '#/components/schemas/Contrato'
+        api:
+          type: array
+          description: Lista de APIs restritas com autorização de acesso
+          items:
+            type: integer
+            description: Lista de APIs restritas com autorização de acesso
+            format: int32
+        paths:
+          type: array
+          items:
+            type: string
+        emissao:
+          type: string
+          description: Data e hora de emissão do token
+          format: date-time
+        expiraEm:
+          type: string
+          description: Data e hora de expiração do token
+          format: date-time
+        zoneOffset:
+          type: string
+          description: Deslocamento do GMT/UTC
+        token:
+          type: string
+          description: 'É o token que será usado na requisição, adicionar no header ''Authorization: Bearer <seu_token>'''
+    ContratoRequest:
+      type: object
+      properties:
+        numero:
+          type: string
+          description: Número do contrato
+      description: Contrato
+    CartaoPostagemRequest:
+      type: object
+      properties:
+        numero:
+          type: string
+          description: Número do cartão de postagem
+      description: Cartão de postagem
+    MessageResponse:
+      type: object
+      properties:
+        msgs:
+          type: array
+          description: Mensagens
+          items:
+            type: string
+            description: Mensagens
+        date:
+          type: string
+          description: Data e hora de ocorrência do evento.
+          format: date-time
+        method:
+          type: string
+          description: Método HTTP que foi requisitado.
+        path:
+          type: string
+          description: URL que foi requisitada.
+        causa:
+          type: string
+          description: A causa da mensagem.
+        stackTrace:
+          type: string
+          description: Detalhe da mensagem.
