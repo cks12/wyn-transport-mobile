@@ -33,7 +33,6 @@ class preco {
         p.psObjeto = Number(parms.psObjeto.toString().replace(",",".")) * 1000,
         p.nuDR = process.env.correiosNUDR || "";
         p.nuContrato = process.env.correiosContrato || "";
-        console.log(p)
         const r = this.axiosInstance(`nacional/${co}`, {
             params: p
         }).catch(err => { console.log(JSON.stringify(err)) })
