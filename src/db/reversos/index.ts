@@ -76,7 +76,7 @@ class reversosDB {
                 freteValor: Number(price?.data.pcFinal.replace(",",".")) || 1,
                 peso:Number(peso.replace(",",".")),
                 isValidate: true,
-                approvedAt: new Date(),
+                validateAt: new Date(),
             },
             select: {
                 id: true,
