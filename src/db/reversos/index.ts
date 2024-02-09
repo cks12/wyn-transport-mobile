@@ -68,14 +68,14 @@ class reversosDB {
                 id: id,
             },
             data: {
-                approvedBy: {
+                validatedBy: {
                     connect: {
                         id: userId
                     }
                 },
                 freteValor: Number(price?.data.pcFinal.replace(",",".")) || 1,
                 peso:Number(peso.replace(",",".")),
-                aproved: true,
+                isValidate: true,
             },
             select: {
                 id: true,
