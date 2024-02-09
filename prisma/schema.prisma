@@ -40,7 +40,7 @@ model reverso {
   updatedAt     DateTime @updatedAt
   tecnicoId     String   @db.ObjectId
   validatedById String?  @db.ObjectId
-  isValidate Boolean @default(false)
+  isValidate Boolean? @default(false)
 }
 
 model prazosServiceGroup {
