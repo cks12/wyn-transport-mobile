@@ -41,6 +41,8 @@ model reverso {
   tecnicoId     String   @db.ObjectId
   validatedById String?  @db.ObjectId
   isValidate Boolean? @default(false)
+  approvedAt DateTime?
+  validateAt DateTime?
 }
 
 model prazosServiceGroup {
