@@ -14,6 +14,7 @@ export const UserResponse: Prisma.reversoSelect = {
             id: true,
         },
     },
+    isValidate: true,
     createdAt: true,
 }
 

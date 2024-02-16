@@ -14,6 +14,7 @@ export interface IreversoListInApp {
         id: string,
     },
     createdAt: Date,
+    isValidate: boolean,
 }
 
 export interface IreversoResponseInApp {

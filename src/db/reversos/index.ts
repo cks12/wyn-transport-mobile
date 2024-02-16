@@ -12,9 +12,6 @@ class reversosDB {
                 id: query.filialID,
             },
             AND: {
-                isValidate: {
-                    not: true
-                },
                 createdAt: {
                     gt: new Date(new Date().setDate(new Date().getDate() - 30)),
                 }
@@ -37,6 +34,7 @@ class reversosDB {
         const [reversosData, countData] = await Promise.all(promises);
         res.count = countData;
         res.data = reversosData;
+        res.data = reversosData.filter((e: any)=> e.isValidate != true)
         return res;
     }
 
