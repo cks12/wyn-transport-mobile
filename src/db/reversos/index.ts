@@ -5,13 +5,14 @@ import { IreversoResponseInApp, get_by_filial_id } from "./type";
 import Correios from "../../lib/correios";
 
 class reversosDB {
-    async get_not_validates(query: get_by_filial_id):Promise<IreversoResponseInApp> {
+    async get_not_validates(query: get_by_filial_id): Promise<IreversoResponseInApp> {
         const res = {} as IreversoResponseInApp;
         const where: Prisma.reversoWhereInput = {
             filial: {
                 id: query.filialID,
             },
             AND: {
+                isValidate: false,
                 createdAt: {
                     gt: new Date(new Date().setDate(new Date().getDate() - 30)),
                 }
@@ -30,7 +31,7 @@ class reversosDB {
             where: where,
         })
 
-        const promises: Promise<any>[] = [reversos,count ]; 
+        const promises: Promise<any>[] = [reversos, count];
         const [reversosData, countData] = await Promise.all(promises);
         res.count = countData;
         res.data = reversosData;
@@ -44,7 +45,15 @@ class reversosDB {
             },
             select: ReversoResponseById,
         });
-        return reverso; 
+        return reverso;
+    }
+
+    async createReverso(data: Prisma.reversoCreateInput) {
+        const reverso = await db.reverso.create({
+            data: data,
+            select: ReversoResponseById,
+        });
+        return reverso;
     }
 
     async update_by_id(id: string, peso: string, userId: string): Promise<any> {
@@ -55,9 +64,10 @@ class reversosDB {
         const filial = await db.filial.findUnique({
             where: {
                 id: recverso?.filial?.id,
-            }})
+            }
+        })
 
-        const price = await correios.preco?.PRECO_REQUEST(recverso?.codServico || "",{
+        const price = await correios.preco?.PRECO_REQUEST(recverso?.codServico || "", {
             cepDestino: filial?.cep || "",
             // @ts-ignore
             cepOrigem: recverso?.tecnico.cep,
@@ -73,8 +83,8 @@ class reversosDB {
                         id: userId
                     }
                 },
-                freteValor: Number(price?.data.pcFinal.replace(",",".")) || 1,
-                peso:Number(peso.replace(",",".")),
+                freteValor: Number(price?.data.pcFinal.replace(",", ".")) || 1,
+                peso: Number(peso.replace(",", ".")),
                 isValidate: true,
                 validateAt: new Date().toISOString(),
             },
