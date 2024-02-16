@@ -12,7 +12,9 @@ class reversosDB {
                 id: query.filialID,
             },
             AND: {
-                isValidate: null,
+                isValidate: {
+                    not: true
+                },
                 createdAt: {
                     gt: new Date(new Date().setDate(new Date().getDate() - 30)),
                 }
