@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import verifyApiKey from './middleware/verifyApiKey';
 import reversoRouter from './route/reverso';
+import ordemRouter from './route/ordem';
 
 class Server {
     port: string | number;
@@ -14,6 +15,7 @@ class Server {
     private routes() {
         this.app.use("/v1/", verifyApiKey);
         this.app.use('/v1/reverso', reversoRouter)
+        this.app.use('/v1/ordem', ordemRouter);
         this.app.get("/", (req,res) => {res.send({"Hello":"world"})});
         this.app.get("*",(req,res) => res.status(404).send("ta perdido amg?"))
     }
