@@ -5,6 +5,6 @@ const ordemRouter = Router();
 const reversoController = new OrdemController();
 
 ordemRouter.delete("/:id", reversoController.delete);
-ordemRouter.get("/:id", reversoController.delete);
+ordemRouter.get("/:id", reversoController.getById);
 
 export default ordemRouter;

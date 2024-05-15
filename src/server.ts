@@ -24,7 +24,6 @@ class Server {
         return this;
     }
     private init() {
-        console.log(process.env)
         console.log(`> O servidor está rodando na porta ${this.port}`)
     }
 }
